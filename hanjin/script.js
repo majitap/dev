@@ -95,7 +95,6 @@ form.addEventListener('submit', async event => {
     '필요 인원': `${values.get('count')}명`,
     '담당자 연락처': values.get('contact'),
     '작업 시간 및 추가 요청': values.get('notes').trim() || '없음',
-    message: inquiryText(),
     _gotcha: values.get('_gotcha') || ''
   };
   const controls = [...form.querySelectorAll('input, select, textarea, button')];
