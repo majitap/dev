@@ -74,7 +74,7 @@ function inquiryText() {
     `투입 희망 날짜: ${values.get('date')}`,
     `필요 인원: ${values.get('count')}명`,
     `담당자 연락처: ${values.get('contact').trim()}`,
-    `작업 시간 및 추가 요청: ${values.get('notes').trim() || '없음'}`,
+    `요청 내용: ${values.get('notes').trim() || '없음'}`,
     '', '공급 가능 여부와 상담 안내를 부탁드립니다.'
   ].join('\n');
 }
@@ -95,7 +95,7 @@ form.addEventListener('submit', async event => {
     '투입 희망 날짜': values.get('date'),
     '필요 인원': `${values.get('count')}명`,
     '담당자 연락처': values.get('contact'),
-    '작업 시간 및 추가 요청': values.get('notes').trim() || '없음',
+    '요청 내용': values.get('notes').trim() || '없음',
     botcheck: Boolean(values.get('botcheck'))
   };
   const controls = [...form.querySelectorAll('input, select, textarea, button')];
