@@ -29,12 +29,20 @@ const form = document.querySelector('#inquiry-form');
 const status = document.querySelector('#form-status');
 const fallback = document.querySelector('#copy-fallback');
 let dialogTrigger;
+let sending = false;
+let clearStatusOnNextOpen = false;
+const submitButton = form.querySelector('[type="submit"]');
+const submitLabel = submitButton.querySelector('.submit-label');
 
 document.querySelectorAll('[data-service], [data-inquiry]').forEach(button => {
   button.addEventListener('click', () => {
     dialogTrigger = button;
-    if (button.dataset.service) form.elements.service.value = button.dataset.service;
-    status.textContent = '';
+    if (button.dataset.service && !sending) form.elements.service.value = button.dataset.service;
+    if (!sending && clearStatusOnNextOpen) {
+      status.textContent = '';
+      status.removeAttribute('data-state');
+      clearStatusOnNextOpen = false;
+    }
     fallback.hidden = true;
     closeMenu();
     document.body.classList.add('dialog-open');
@@ -70,12 +78,52 @@ function inquiryText() {
     '', '공급 가능 여부와 상담 안내를 부탁드립니다.'
   ].join('\n');
 }
-form.addEventListener('submit', event => {
+form.addEventListener('submit', async event => {
   event.preventDefault();
-  const body = inquiryText();
-  const subject = `현장 인력 문의 | ${form.elements.service.value}`;
-  window.location.href = `mailto:daebaq54@naver.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  status.textContent = '이메일 앱에서 내용을 확인한 뒤 보내주세요. 앱이 열리지 않으면 ‘내용 복사’를 이용해 주세요.';
+  if (sending) return;
+  for (const name of ['location', 'contact']) {
+    const field = form.elements[name];
+    field.value = field.value.trim();
+  }
+  if (!form.reportValidity()) return;
+  const values = new FormData(form);
+  const payload = {
+    subject: `한진개발 현장 인력 문의 | ${values.get('service')}`,
+    '작업 분야': values.get('service'),
+    '현장 위치': values.get('location'),
+    '투입 희망 날짜': values.get('date'),
+    '필요 인원': `${values.get('count')}명`,
+    '담당자 연락처': values.get('contact'),
+    '작업 시간 및 추가 요청': values.get('notes').trim() || '없음',
+    message: inquiryText(),
+    _gotcha: values.get('_gotcha') || ''
+  };
+  const controls = [...form.querySelectorAll('input, select, textarea, button')];
+  const disabledBefore = controls.map(control => control.disabled);
+  sending = true;
+  clearStatusOnNextOpen = false;
+  form.setAttribute('aria-busy', 'true');
+  controls.forEach(control => { control.disabled = true; });
+  submitLabel.textContent = '전송 중…';
+  status.dataset.state = 'sending';
+  status.textContent = '문의 내용을 보내고 있습니다. 잠시만 기다려 주세요.';
+  try {
+    await HanjinMail.send(form.dataset.endpoint, payload);
+    form.reset();
+    fallback.hidden = true;
+    document.querySelector('#inquiry-preview').value = '';
+    status.dataset.state = 'success';
+    status.textContent = '문의가 접수되었습니다. 확인 후 안내해 드리겠습니다.';
+    clearStatusOnNextOpen = true;
+  } catch (error) {
+    status.dataset.state = 'error';
+    status.textContent = error.message;
+  } finally {
+    sending = false;
+    form.removeAttribute('aria-busy');
+    controls.forEach((control, index) => { control.disabled = disabledBefore[index]; });
+    submitLabel.textContent = '문의 보내기';
+  }
 });
 document.querySelector('#copy-inquiry').addEventListener('click', async () => {
   if (!form.reportValidity()) return;

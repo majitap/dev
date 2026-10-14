@@ -11,6 +11,7 @@
 
 /* Keep the explanatory text comfortably readable at every viewport. */
 .hero-description{font-size:16px}.intro-copy>p{font-size:15px}.strengths p{font-size:13px}.service-card p{font-size:14px}.section-description{font-size:14px}.process-grid p{font-size:13px}.contact-main>p:not(.eyebrow){font-size:14px}.worker-inner p:not(.eyebrow){font-size:13px}
+.form-status[data-state]{padding:13px 15px;margin-top:16px;border:1px solid #c5d2c7;border-radius:3px;background:#e8eee5}.form-status[data-state=error]{color:#923d29;background:#f8ebe5;border-color:#e8c1b0}.form-status[data-state=sending]{color:var(--muted);background:var(--cream);border-color:var(--line)}.form-actions .button:disabled{cursor:wait;opacity:.65;transform:none}.dialog-content .form-privacy{font-size:10px;line-height:1.7;margin-top:13px;color:var(--muted)}.form-honeypot{display:none!important}
 @media(max-width:1150px){.hero-description{font-size:14px}.service-card p{font-size:13px}.process-grid p{font-size:12px}.section-description{font-size:13px}}
 @media(max-width:900px){.intro-copy>p{font-size:14px}.strengths p{font-size:12px}.contact-main>p:not(.eyebrow){font-size:13px}}
 @media(max-width:620px){.hero-description{font-size:14px}.service-card p{font-size:14px}.strengths p{font-size:13px}.process-grid p{font-size:12px}.dialog-intro{font-size:12px}}
