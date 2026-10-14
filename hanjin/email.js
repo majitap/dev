@@ -1,21 +1,21 @@
 'use strict';
 
-// Formspree's public form endpoint is safe to expose; it contains no mail credentials.
-async function sendHanjinInquiry(endpoint, payload, fetchRequest = fetch, timeoutMs = 20000) {
-  if (!/^https:\/\/formspree\.io\/f\/[a-z0-9]+$/i.test(endpoint || '')) {
+// Web3Forms access keys are public form identifiers, not mail credentials.
+async function sendHanjinInquiry(accessKey, payload, fetchRequest = fetch, timeoutMs = 20000) {
+  if (!/^[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i.test(accessKey || '')) {
     throw new Error('문의 전송 연결을 준비 중입니다. 전화 상담을 이용해 주세요.');
   }
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   try {
-    const response = await fetchRequest(endpoint, {
+    const response = await fetchRequest('https://api.web3forms.com/submit', {
       method: 'POST',
       headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ ...payload, access_key: accessKey }),
       signal: controller.signal
     });
     const result = await response.json().catch(() => null);
-    if (response.ok && result?.ok === true) return;
+    if (response.ok && result?.success === true) return;
     if (response.ok) {
       throw new Error('접수 결과를 확인하지 못했습니다. 중복 접수를 피하려면 먼저 전화로 접수 여부를 확인해 주세요. 입력 내용은 유지했습니다.');
     }

@@ -88,6 +88,7 @@ form.addEventListener('submit', async event => {
   if (!form.reportValidity()) return;
   const values = new FormData(form);
   const payload = {
+    from_name: '한진개발 홈페이지 문의',
     subject: `한진개발 현장 인력 문의 | ${values.get('service')}`,
     '작업 분야': values.get('service'),
     '현장 위치': values.get('location'),
@@ -95,7 +96,7 @@ form.addEventListener('submit', async event => {
     '필요 인원': `${values.get('count')}명`,
     '담당자 연락처': values.get('contact'),
     '작업 시간 및 추가 요청': values.get('notes').trim() || '없음',
-    _gotcha: values.get('_gotcha') || ''
+    botcheck: Boolean(values.get('botcheck'))
   };
   const controls = [...form.querySelectorAll('input, select, textarea, button')];
   const disabledBefore = controls.map(control => control.disabled);
@@ -107,7 +108,7 @@ form.addEventListener('submit', async event => {
   status.dataset.state = 'sending';
   status.textContent = '문의 내용을 보내고 있습니다. 잠시만 기다려 주세요.';
   try {
-    await HanjinMail.send(form.dataset.endpoint, payload);
+    await HanjinMail.send(form.dataset.accessKey, payload);
     form.reset();
     fallback.hidden = true;
     document.querySelector('#inquiry-preview').value = '';
